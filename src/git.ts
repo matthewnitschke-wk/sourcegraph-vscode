@@ -32,7 +32,7 @@ async function gitRemoteURL(repoDir: string, remoteName: string): Promise<string
  * Returns the remote URL of the first Git remote found.
  */
 async function gitDefaultRemoteURL(repoDir: string): Promise<string> {
-    var remote = getDefaultRemote();
+    let remote = getDefaultRemote();
 
     if (remote == null) {
         const remotes = await gitRemotes(repoDir)
