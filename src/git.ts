@@ -1,7 +1,7 @@
 import execa from 'execa'
 import * as path from 'path'
 import { log } from './log'
-import { getRemoteUrlReplacements } from './config'
+import { getDefaultRemote, getRemoteUrlReplacements } from './config'
 
 /**
  * Returns the names of all git remotes, e.g. ["origin", "foobar"]
@@ -32,14 +32,20 @@ async function gitRemoteURL(repoDir: string, remoteName: string): Promise<string
  * Returns the remote URL of the first Git remote found.
  */
 async function gitDefaultRemoteURL(repoDir: string): Promise<string> {
-    const remotes = await gitRemotes(repoDir)
-    if (remotes.length === 0) {
-        throw new Error('no configured git remotes')
+    var remote = getDefaultRemote();
+
+    if (remote == null) {
+        const remotes = await gitRemotes(repoDir)
+        if (remotes.length === 0) {
+            throw new Error('no configured git remotes')
+        }
+        if (remotes.length > 1) {
+            log.appendLine(`using first git remote: ${remotes[0]}`)
+        }
+
+        remote = remotes[0]
     }
-    if (remotes.length > 1) {
-        log.appendLine(`using first git remote: ${remotes[0]}`)
-    }
-    return await gitRemoteURL(repoDir, remotes[0])
+    return await gitRemoteURL(repoDir, remote)
 }
 
 /**
